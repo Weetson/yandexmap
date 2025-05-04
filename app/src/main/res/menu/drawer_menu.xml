@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="none"
+        android:id="@+id/static_group">
+        <item android:id="@+id/group_family" android:title="👨‍👩‍👧 Семья" />
+        <item android:id="@+id/group_work" android:title="💼 Работа" />
+        <item android:id="@+id/group_friends" android:title="👫 Друзья" />
+        <item android:id="@+id/group_settings" android:title="Settings" android:icon="@drawable/baseline_settings_24"/>
+    </group>
+</menu>

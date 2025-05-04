@@ -7,4 +7,8 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="main_pink">#490259</color>
+    <color name="second_pink">#38023C</color>
+    <color name="underline_pink">#2D0325</color>
+    <color name="main_dark">#242426</color>
 </resources>

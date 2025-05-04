@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "646792889177",
+    "project_id": "zametki-6d5ae",
+    "storage_bucket": "zametki-6d5ae.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:646792889177:android:3bc19ecbdaa5b2f0498248",
+        "android_client_info": {
+          "package_name": "com.company.note"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-qXKhVjlkDNBYoNpbdNmb5_o-0O6Dlgg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:646792889177:android:15aa13cbcf74071a498248",
+        "android_client_info": {
+          "package_name": "com.example.note"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-qXKhVjlkDNBYoNpbdNmb5_o-0O6Dlgg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:646792889177:android:0f74c86e731095f8498248",
+        "android_client_info": {
+          "package_name": "com.example.yandexmapkit"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-qXKhVjlkDNBYoNpbdNmb5_o-0O6Dlgg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
