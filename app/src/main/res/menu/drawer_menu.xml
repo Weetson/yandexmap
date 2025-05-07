@@ -1,10 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <group android:checkableBehavior="none"
         android:id="@+id/static_group">
-        <item android:id="@+id/group_family" android:title="👨‍👩‍👧 Семья" />
-        <item android:id="@+id/group_work" android:title="💼 Работа" />
-        <item android:id="@+id/group_friends" android:title="👫 Друзья" />
+        <item android:id="@+id/group_profile" android:title="Profile"  android:icon="@drawable/baseline_account_circle_24"/>
+        <item android:id="@+id/group_comrades" android:title="Comrades" android:icon="@drawable/baseline_accessibility_new_24"/>
         <item android:id="@+id/group_settings" android:title="Settings" android:icon="@drawable/baseline_settings_24"/>
+        <item android:id="@+id/group_find" android:title="Find comrades" android:icon="@drawable/baseline_group_add_24"/>
+    </group>
+
+    <group android:checkableBehavior="none"
+        android:id="@+id/dynamic_group">
+        <item android:id="@+id/group_ghost_menu"
+            android:title=""
+            app:actionLayout="@layout/switch_menu_item"
+            app:showAsAction="always"
+            android:icon="@drawable/baseline_dark_mode_24"
+            android:enabled="true"
+            />
     </group>
 </menu>

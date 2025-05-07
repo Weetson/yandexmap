@@ -20,6 +20,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/main_pink"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             android:elevation="4dp"
             app:title="Карта" />
@@ -27,7 +29,8 @@
         <com.yandex.mapkit.mapview.MapView
             android:id="@+id/mapview"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
 
     </LinearLayout>
 

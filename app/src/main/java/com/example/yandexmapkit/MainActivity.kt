@@ -7,10 +7,12 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Switch
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SwitchCompat
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
@@ -27,6 +29,7 @@ import com.google.firebase.firestore.GeoPoint
 import com.google.firebase.firestore.firestore
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
+import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.mapkit.mapview.MapView
 import com.yandex.runtime.image.ImageProvider
@@ -42,7 +45,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var toggle: ActionBarDrawerToggle
     private lateinit var toolbar: Toolbar
 
-    private lateinit var menu: Menu
+    private lateinit var navMenu: Menu
+    private lateinit var ghostMenuItem: MenuItem
+    private lateinit var ghostSwitch: SwitchCompat
 
     private val db = Firebase.firestore
     private val imageProvider by lazy { ImageProvider.fromResource(this, R.drawable.point_on_map) }
@@ -68,6 +73,12 @@ class MainActivity : AppCompatActivity() {
         listenToLocations()
         startLocationUpdates()
 
+        // центрирование на карте при окрытии приложения
+        getLocationOnce { point ->
+            if (point != null) {
+                mapView.map.move(CameraPosition(point, 15f, 0f, 0f))
+            }
+        }
 
 
 
@@ -85,17 +96,29 @@ class MainActivity : AppCompatActivity() {
         drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
 
-
-
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.group_family -> toggleGroup("family")
-                R.id.group_work -> toggleGroup("work")
-                R.id.group_friends -> toggleGroup("friends")
+                R.id.group_profile -> toggleGroup("profile")
+                R.id.group_comrades -> toggleGroup("comrades")
+                R.id.group_settings -> toggleGroup("settings")
+                R.id.group_find -> toggleGroup("find")
             }
             drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
+
+        /*navMenu = navView.menu
+        ghostMenuItem = navMenu.findItem(R.id.group_ghost_menu)
+        ghostSwitch = ghostMenuItem.actionView?.findViewById(R.id.switchGhost)!!
+
+        ghostSwitch.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                toggleGhostMode()
+            } else {
+                Toast.makeText(this, "Ghost Mode выключен", Toast.LENGTH_SHORT).show()
+            }
+        }*/
+
     }
 
     override fun onStart() {
@@ -117,6 +140,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupUserInDb() {
+    // Регистрация в БД
         val userDoc = db.collection("locations").document(login)
         userDoc.get().addOnSuccessListener { document ->
             if (!document.exists()) {
@@ -131,6 +155,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun listenToLocations() {
+    // Обновление карты
         db.collection("locations")
             .addSnapshotListener { snapshots, error ->
                 if (error != null || snapshots == null) {
@@ -154,11 +179,7 @@ class MainActivity : AppCompatActivity() {
     private fun startLocationUpdates() {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
+        if (!checkLocationPermission()) {
             ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 1001)
             return
         }
@@ -192,4 +213,33 @@ class MainActivity : AppCompatActivity() {
     private fun toggleGhostMode() {
         Toast.makeText(this, "you are in ghost mode", Toast.LENGTH_SHORT).show()
     }
+
+
+    private fun getLocationOnce(callback: (Point?) -> Unit) {
+        // Единоразовое получение локации
+        if (!checkLocationPermission()) {
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 1001)
+            callback(null)
+            return
+        }
+
+        fusedLocationClient.lastLocation
+            .addOnSuccessListener { location ->
+                callback(location?.let { Point(it.latitude, it.longitude) })
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Ошибка GPS", Toast.LENGTH_SHORT).show()
+                callback(null)
+            }
+
+    }
+
+    private fun checkLocationPermission(): Boolean {
+        return ActivityCompat.checkSelfPermission(
+            this,
+            android.Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+
 }
