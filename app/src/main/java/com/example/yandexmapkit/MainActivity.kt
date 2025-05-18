@@ -33,12 +33,16 @@ import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.MapObjectTapListener
 import com.yandex.mapkit.mapview.MapView
 import com.yandex.runtime.image.ImageProvider
+import kotlin.text.clear
 
 class MainActivity : AppCompatActivity() {
     private lateinit var mapView: MapView
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
+
     private lateinit var login: String
+    private lateinit var id: String
+    private lateinit var user: UserUnit
 
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var navView: NavigationView
@@ -49,7 +53,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var ghostMenuItem: MenuItem
     private lateinit var ghostSwitch: SwitchCompat
 
-    private val db = Firebase.firestore
+    private val dbrouter = DataBase()
     private val imageProvider by lazy { ImageProvider.fromResource(this, R.drawable.point_on_map) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,7 +73,10 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        setupUserInDb()
+        id = dbrouter.signUpUser(login)
+        user = dbrouter.setUser(id)
+
+
         listenToLocations()
         startLocationUpdates()
 
@@ -85,11 +92,6 @@ class MainActivity : AppCompatActivity() {
         drawerLayout = findViewById(R.id.drawerLayout)
         navView = findViewById(R.id.nav_view)
 
-        //toggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
-        //supportActionBar?.setDispayHomeAsUpEnabled(true)
-        //drawerLayout.addDrawerListener(toggle)
-        //toggle.syncState()
-
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         toggle = ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open, R.string.close)
@@ -98,7 +100,7 @@ class MainActivity : AppCompatActivity() {
 
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.group_profile -> toggleGroup("profile")
+                R.id.group_profile -> toggleGroup("ProfileActivity")
                 R.id.group_comrades -> toggleGroup("comrades")
                 R.id.group_settings -> toggleGroup("settings")
                 R.id.group_find -> toggleGroup("find")
@@ -107,17 +109,6 @@ class MainActivity : AppCompatActivity() {
             true
         }
 
-        /*navMenu = navView.menu
-        ghostMenuItem = navMenu.findItem(R.id.group_ghost_menu)
-        ghostSwitch = ghostMenuItem.actionView?.findViewById(R.id.switchGhost)!!
-
-        ghostSwitch.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                toggleGhostMode()
-            } else {
-                Toast.makeText(this, "Ghost Mode выключен", Toast.LENGTH_SHORT).show()
-            }
-        }*/
 
     }
 
@@ -140,40 +131,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupUserInDb() {
-    // Регистрация в БД
-        val userDoc = db.collection("locations").document(login)
-        userDoc.get().addOnSuccessListener { document ->
-            if (!document.exists()) {
-                userDoc.set(
-                    mapOf(
-                        "name" to login,
-                        "location" to GeoPoint(0.0, 0.0)
-                    )
-                )
-            }
-        }
+        dbrouter.signUpUser(login)
     }
 
     private fun listenToLocations() {
-    // Обновление карты
-        db.collection("locations")
-            .addSnapshotListener { snapshots, error ->
-                if (error != null || snapshots == null) {
-                    Toast.makeText(this, "Ошибка загрузки точек", Toast.LENGTH_SHORT).show()
-                    return@addSnapshotListener
-                }
-                mapView.map.mapObjects.clear()
-                for (doc in snapshots) {
-                    val geoPoint = doc.getGeoPoint("location")
-                    if (geoPoint != null) {
-                        val placemark = mapView.map.mapObjects.addPlacemark().apply {
-                            geometry = Point(geoPoint.latitude, geoPoint.longitude)
-                            setIcon(imageProvider)
-                        }
-                        placemark.addTapListener(placemarkTapListener)
-                    }
-                }
-            }
+        mapView.map.mapObjects.clear()
+        val geoPoint = dbrouter.getLocation()
+        val placemark = mapView.map.mapObjects.addPlacemark().apply {
+            geometry = Point(geoPoint.latitude, geoPoint.longitude)
+            setIcon(imageProvider)
+        }
+        placemark.addTapListener(placemarkTapListener)
+
     }
 
     private fun startLocationUpdates() {
@@ -189,11 +158,7 @@ class MainActivity : AppCompatActivity() {
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 for (location in locationResult.locations) {
-                    db.collection("locations")
-                        .document(login)
-                        .update(
-                            "location", GeoPoint(location.latitude, location.longitude)
-                        )
+                    dbrouter.updateUser(login, location)
                 }
             }
         }
@@ -208,6 +173,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun toggleGroup(group: String) {
         Toast.makeText(this, "went to $group", Toast.LENGTH_SHORT).show()
+        val intent = Intent(this, group::class.java)
+        if (group == "ProfileActivity") { intent.putExtra("USER_ID", user.id.toString())}
+        startActivity(intent)
+        finish()
     }
 
     private fun toggleGhostMode() {
